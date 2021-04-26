@@ -1,14 +1,44 @@
 import Layout from '@/components/Layout'
+import { API_URL } from '@/config/index'
 
-import { useRouter } from 'next/router'
-
-export default function EventPage() {
-  const router = useRouter()
-
-  console.log(router)
+export default function EventPage({ evt }) {
   return (
     <Layout title='THIS IS SLUG'>
-      <h1>Ovo je moja objava</h1>
+      <div></div>
     </Layout>
   )
 }
+
+export async function getStaticPaths() {
+  const res = await fetch(`${API_URL}/api/events`)
+  const events = await res.json()
+
+  const paths = events.map((evt) => ({
+    params: { slug: evt.slug },
+  }))
+
+  return {
+    paths,
+    fallback: true,
+  }
+}
+export async function getStaticProps({ params: { slug } }) {
+  const res = await fetch(`${API_URL}/api/events/${slug}`)
+  const events = await res.json()
+  return {
+    props: {
+      evt: events[0],
+    },
+    revalidate: 1,
+  }
+}
+
+// export async function getServerSideProps({ query: { slug } }) {
+//   const res = await fetch(`${API_URL}/api/events/${slug}`)
+//   const events = await res.json()
+//   return {
+//     props: {
+//       evt: events[0],
+//     },
+//   }
+// }
